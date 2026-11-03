@@ -1,0 +1,23 @@
+{
+  "name": "User",
+  "type": "object",
+  "properties": {
+    "role": {
+      "type": "string",
+      "enum": [
+        "admin",
+        "user"
+      ],
+      "default": "user"
+    },
+    "appRole": {
+      "type": "string",
+      "enum": [
+        "ORG_ADMIN",
+        "TCCUBE_VIEWER",
+        "NONE"
+      ],
+      "default": "NONE"
+    }
+  }
+}

@@ -1,0 +1,65 @@
+{
+  "name": "RefereeRaceFlag",
+  "type": "object",
+  "properties": {
+    "raceId": {
+      "type": "string"
+    },
+    "refereeId": {
+      "type": "string"
+    },
+    "refereeName": {
+      "type": "string"
+    },
+    "competitionId": {
+      "type": "string"
+    },
+    "roundId": {
+      "type": "string"
+    },
+    "raceNumber": {
+      "type": "number"
+    },
+    "flagged": {
+      "type": "boolean",
+      "default": true
+    },
+    "videoTimestamp": {
+      "type": "string"
+    },
+    "flaggedAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "updatedAt": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "required": [
+    "raceId",
+    "refereeId"
+  ],
+  "rls": {
+    "read": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

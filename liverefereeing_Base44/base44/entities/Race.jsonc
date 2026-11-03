@@ -1,0 +1,103 @@
+{
+  "name": "Race",
+  "type": "object",
+  "properties": {
+    "competitionId": {
+      "type": "string"
+    },
+    "roundId": {
+      "type": "string"
+    },
+    "genderGroup": {
+      "type": "string",
+      "enum": [
+        "MEN",
+        "WOMEN",
+        "MIXED",
+        "MEN Relay (5000m)",
+        "WOMEN Relay (3000m)"
+      ]
+    },
+    "raceNumber": {
+      "type": "number"
+    },
+    "athleteIds": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "youtubeUrl": {
+      "type": "string"
+    },
+    "isClosed": {
+      "type": "boolean",
+      "default": false
+    },
+    "flagged": {
+      "type": "boolean",
+      "default": false
+    },
+    "finalDecision": {
+      "type": "string"
+    },
+    "finalDecisionPrevious": {
+      "type": "string"
+    },
+    "finalDecisionRevised": {
+      "type": "boolean",
+      "default": false
+    },
+    "finalDecisionRevisionReason": {
+      "type": "string",
+      "enum": [
+        "DEBRIEF",
+        "TC_MEETING",
+        "ERROR_CORRECTION"
+      ]
+    },
+    "finalDecisionRevisedAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "scoringMarks": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "markCountries": {
+      "type": "string"
+    },
+    "tcNote": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "competitionId",
+    "roundId",
+    "raceNumber"
+  ],
+  "rls": {
+    "read": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

@@ -1,0 +1,60 @@
+{
+  "name": "LiveRace",
+  "type": "object",
+  "properties": {
+    "competitionId": {
+      "type": "string"
+    },
+    "raceId": {
+      "type": "string"
+    },
+    "roundId": {
+      "type": "string"
+    },
+    "genderGroup": {
+      "type": "string",
+      "enum": [
+        "MEN",
+        "WOMEN",
+        "MIXED",
+        "MEN Relay (5000m)",
+        "WOMEN Relay (3000m)"
+      ]
+    },
+    "raceNumber": {
+      "type": "number"
+    },
+    "setAt": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "required": [
+    "competitionId",
+    "raceId",
+    "roundId",
+    "genderGroup"
+  ],
+  "rls": {
+    "read": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

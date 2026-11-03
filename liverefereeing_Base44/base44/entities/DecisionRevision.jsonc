@@ -1,0 +1,71 @@
+{
+  "name": "DecisionRevision",
+  "type": "object",
+  "properties": {
+    "raceId": {
+      "type": "string"
+    },
+    "competitionId": {
+      "type": "string"
+    },
+    "roundId": {
+      "type": "string"
+    },
+    "raceNumber": {
+      "type": "number"
+    },
+    "genderGroup": {
+      "type": "string",
+      "enum": [
+        "MEN",
+        "WOMEN",
+        "MIXED",
+        "MEN Relay (5000m)",
+        "WOMEN Relay (3000m)"
+      ]
+    },
+    "originalDecision": {
+      "type": "string"
+    },
+    "newDecision": {
+      "type": "string"
+    },
+    "reason": {
+      "type": "string",
+      "enum": [
+        "DEBRIEF",
+        "TC_MEETING",
+        "ERROR_CORRECTION"
+      ]
+    },
+    "revisedAt": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "required": [
+    "raceId"
+  ],
+  "rls": {
+    "read": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

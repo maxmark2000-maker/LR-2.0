@@ -1,0 +1,61 @@
+{
+  "name": "ScheduleEntry",
+  "type": "object",
+  "properties": {
+    "competitionId": {
+      "type": "string"
+    },
+    "scheduledTime": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "raceNumber": {
+      "type": "number"
+    },
+    "roundType": {
+      "type": "string"
+    },
+    "distance": {
+      "type": "string"
+    },
+    "genderGroup": {
+      "type": "string",
+      "enum": [
+        "MEN",
+        "WOMEN",
+        "MIXED",
+        "MEN Relay (5000m)",
+        "WOMEN Relay (3000m)"
+      ]
+    },
+    "label": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "competitionId",
+    "scheduledTime"
+  ],
+  "rls": {
+    "read": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

@@ -1,0 +1,80 @@
+{
+  "name": "Round",
+  "type": "object",
+  "properties": {
+    "competitionId": {
+      "type": "string"
+    },
+    "genderGroup": {
+      "type": "string",
+      "enum": [
+        "MEN",
+        "WOMEN",
+        "MIXED",
+        "MEN Relay (5000m)",
+        "WOMEN Relay (3000m)"
+      ]
+    },
+    "type": {
+      "type": "string",
+      "enum": [
+        "Preliminaries",
+        "Heats",
+        "Quarter Finals",
+        "Semi Finals",
+        "Final B",
+        "Final"
+      ]
+    },
+    "distance": {
+      "type": "string",
+      "enum": [
+        "500M",
+        "1000M",
+        "1500M",
+        "Relay 5000M",
+        "Relay 3000M",
+        "Mixed Relay 2000M"
+      ]
+    },
+    "sequence": {
+      "type": "number"
+    },
+    "racesCount": {
+      "type": "number",
+      "default": 1
+    },
+    "isComplete": {
+      "type": "boolean",
+      "default": false
+    }
+  },
+  "required": [
+    "competitionId",
+    "genderGroup",
+    "type",
+    "sequence"
+  ],
+  "rls": {
+    "read": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}
