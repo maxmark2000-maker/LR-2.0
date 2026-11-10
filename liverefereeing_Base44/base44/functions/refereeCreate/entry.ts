@@ -29,8 +29,8 @@ export default async function (req) {
     const allowedFunctions = ['NONE', 'TC', 'APPR'];
     const func = allowedFunctions.includes(body.function) ? body.function : 'NONE';
 
-    if (!displayName || !username || password.length < 6) {
-      return Response.json({ error: 'displayName, username and a password of at least 6 characters are required' }, { status: 400 });
+    if (!displayName || !username || password.length !== 6) {
+      return Response.json({ error: 'displayName, username and a password of exactly 6 characters are required' }, { status: 400 });
     }
     if (!country) {
       return Response.json({ error: 'A country of origin is required' }, { status: 400 });
@@ -42,7 +42,7 @@ export default async function (req) {
     const salt = randomSalt();
     const passwordHash = await hashPassword(password, salt);
     const referee = await base44.asServiceRole.entities.Referee.create({
-      displayName, username, country, salt, passwordHash, passwordPlain: password, assignedCompetitionIds, assignedGenderGroups, function: func, active: true
+      displayName, username, country, salt, passwordHash, assignedCompetitionIds, assignedGenderGroups, function: func, active: true
     });
 
     await base44.asServiceRole.entities.AuditLog.create({

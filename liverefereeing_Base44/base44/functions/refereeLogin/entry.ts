@@ -1,5 +1,5 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.40';
-import { hashPassword, makeToken, readRefereeList } from '../../shared/refereeAuth.ts';
+import { verifyPassword, makeToken, readRefereeList } from '../../shared/refereeAuth.ts';
 
 export default async function (req) {
   try {
@@ -18,8 +18,7 @@ export default async function (req) {
     const referee = referees.find((entry) => entry.username === username);
     if (!referee || referee.active === false) return Response.json({ error: 'Invalid credentials' });
 
-    const hash = await hashPassword(password, referee.salt);
-    if (hash !== referee.passwordHash) return Response.json({ error: 'Invalid credentials' });
+    if (!(await verifyPassword(password, referee))) return Response.json({ error: 'Invalid credentials' });
 
     const token = await makeToken(referee);
     await base44.asServiceRole.entities.AuditLog.create({

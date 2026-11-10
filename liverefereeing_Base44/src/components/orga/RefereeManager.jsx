@@ -53,8 +53,8 @@ export default function RefereeManager({ competitionId, canEdit }) {
   const create = async (e) => {
     e.preventDefault();
     setCreated(null);
-    if (!form.displayName.trim() || !form.username.trim() || form.password.length < 6) {
-      setError('Name, username and a password of at least 6 characters are required.');
+    if (!form.displayName.trim() || !form.username.trim() || form.password.length !== 6) {
+      setError('Name, username and a password of exactly 6 characters are required.');
       return;
     }
     setError('');
@@ -98,7 +98,8 @@ export default function RefereeManager({ competitionId, canEdit }) {
             <div className="relative">
               <Input
                 type="password"
-                placeholder="Password (min. 6 chars)"
+                placeholder="Password (6 characters)"
+                maxLength={6}
                 value={form.password}
                 onChange={(e) => setForm({ ...form, password: e.target.value })}
                 className="pr-9"

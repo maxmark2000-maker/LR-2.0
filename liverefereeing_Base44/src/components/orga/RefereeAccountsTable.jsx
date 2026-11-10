@@ -6,7 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Search, Pencil, Trash2, Eye, EyeOff } from 'lucide-react';
+import { Search, Pencil, Trash2 } from 'lucide-react';
 import RefereeEditDialog from '@/components/orga/RefereeEditDialog';
 import CountryFlag from '@/components/tc/CountryFlag';
 import IsuLogo from '@/components/orga/IsuLogo';
@@ -17,7 +17,6 @@ export default function RefereeAccountsTable({ referees, competitions, onChanged
   const [query, setQuery] = useState('');
   const [functionFilter, setFunctionFilter] = useState('ALL');
   const [compFilter, setCompFilter] = useState('ALL');
-  const [visible, setVisible] = useState({});
   const [editing, setEditing] = useState(null);
 
   const rows = useMemo(() => {
@@ -88,7 +87,7 @@ export default function RefereeAccountsTable({ referees, competitions, onChanged
               <TableHead className="w-[24%]">Referee</TableHead>
               <TableHead className="w-[14%]">Function</TableHead>
               <TableHead className="w-[16%]">Country</TableHead>
-              <TableHead className="w-[16%]">Password</TableHead>
+              <TableHead className="w-[16%]">Password security</TableHead>
               <TableHead className="w-[12%]">Login confirmed</TableHead>
               <TableHead className="w-[10%]">Status</TableHead>
               <TableHead className="w-[8%] text-right">Actions</TableHead>
@@ -129,21 +128,7 @@ export default function RefereeAccountsTable({ referees, competitions, onChanged
                     </span>
                   </TableCell>
                   <TableCell>
-                    {r.passwordPlain ? (
-                      <span className="inline-flex items-center gap-1">
-                        <span className="font-mono text-xs">{visible[r.id] ? r.passwordPlain : '••••••••'}</span>
-                        <button
-                          type="button"
-                          title={visible[r.id] ? 'Hide password' : 'Show password'}
-                          onClick={() => setVisible({ ...visible, [r.id]: !visible[r.id] })}
-                          className="text-muted-foreground hover:text-foreground"
-                        >
-                          {visible[r.id] ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
-                        </button>
-                      </span>
-                    ) : (
-                      <span className="text-xs text-muted-foreground">not stored</span>
-                    )}
+                    <span className="text-xs text-muted-foreground">Hidden · reset in Edit</span>
                   </TableCell>
                   <TableCell>
                     <label className="flex items-center gap-2 cursor-pointer" title="Tick when the referee confirmed the login">

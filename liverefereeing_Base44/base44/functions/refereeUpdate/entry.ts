@@ -37,7 +37,7 @@ export default async function (req) {
       }
     }
 
-    const update = { displayName, username };
+    const update: Record<string, any> = { displayName, username };
 
     if (body.country != null) {
       update.country = String(body.country).trim().toUpperCase().slice(0, 40);
@@ -55,13 +55,14 @@ export default async function (req) {
     }
 
     if (body.password && String(body.password).length > 0) {
-      if (String(body.password).length < 6) {
-        return Response.json({ error: 'Password must be at least 6 characters' }, { status: 400 });
+      if (String(body.password).length !== 6) {
+        return Response.json({ error: 'Password must be exactly 6 characters' }, { status: 400 });
       }
       const salt = randomSalt();
       update.salt = salt;
       update.passwordHash = await hashPassword(String(body.password), salt);
-      update.passwordPlain = String(body.password);
+      // Clear a previously stored plaintext password when this account is reset.
+      update.passwordPlain = '';
     }
 
     await base44.asServiceRole.entities.Referee.update(refereeId, update);

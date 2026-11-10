@@ -34,8 +34,52 @@ export function randomSalt() {
   return Array.from(bytes).map((b) => b.toString(16).padStart(2, '0')).join('');
 }
 
+// Versioned password storage. New/refreshed passwords use PBKDF2-SHA256.
+// Base44 currently imposes a 100,000-iteration limit. This is a transitional
+// compatibility measure, NOT the target for a future independent backend.
+const REFEREE_PBKDF2_ITERATIONS = 100000;
+const textEncoder = new TextEncoder();
+
+function toArrayBuffer(bytes) {
+  const output = new ArrayBuffer(bytes.byteLength);
+  new Uint8Array(output).set(bytes);
+  return output;
+}
+
+function fromHex(value) {
+  if (typeof value !== 'string' || value.length % 2 || !/^[0-9a-f]+$/i.test(value)) return null;
+  return new Uint8Array((value.match(/../g) || []).map((piece) => parseInt(piece, 16)));
+}
+
+function equalHex(a, b) {
+  if (!a || !b || a.length !== b.length) return false;
+  let difference = 0;
+  for (let i = 0; i < a.length; i++) difference |= a.charCodeAt(i) ^ b.charCodeAt(i);
+  return difference === 0;
+}
+
 export async function hashPassword(password, salt) {
-  return await sha256Hex(salt + ':' + password);
+  const saltBytes = fromHex(salt);
+  if (!saltBytes || saltBytes.length < 16) throw new Error('Invalid referee salt');
+  const baseKey = await crypto.subtle.importKey('raw', toArrayBuffer(textEncoder.encode(password)), 'PBKDF2', false, ['deriveBits']);
+  const bits = await crypto.subtle.deriveBits({ name: 'PBKDF2', salt: toArrayBuffer(saltBytes), iterations: REFEREE_PBKDF2_ITERATIONS, hash: 'SHA-256' }, baseKey, 256);
+  const hashHex = Array.from(new Uint8Array(bits), (b) => b.toString(16).padStart(2, '0')).join('');
+  return `pbkdf2-sha256$${REFEREE_PBKDF2_ITERATIONS}$${salt}$${hashHex}`;
+}
+
+export async function verifyPassword(password, referee) {
+  if (!password || !referee || typeof referee.passwordHash !== 'string') return false;
+  const stored = referee.passwordHash;
+  if (stored.startsWith('pbkdf2-sha256$')) {
+    const parts = stored.split('$');
+    if (parts.length !== 4 || parts[1] !== String(REFEREE_PBKDF2_ITERATIONS) ||
+      !/^[a-f0-9]{32}$/i.test(parts[2]) || !/^[a-f0-9]{64}$/i.test(parts[3])) return false;
+    return equalHex(await hashPassword(password, parts[2]), stored.toLowerCase());
+  }
+  // Existing accounts remain usable until their password is deliberately reset.
+  // A successful reset replaces this legacy salted-SHA256 hash with PBKDF2.
+  if (!/^[0-9a-f]{64}$/i.test(stored) || !referee.salt) return false;
+  return equalHex(await sha256Hex(referee.salt + ':' + password), stored.toLowerCase());
 }
 
 export async function makeToken(referee) {

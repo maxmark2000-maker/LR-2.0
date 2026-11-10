@@ -6,7 +6,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
-import { Eye, EyeOff, Save } from 'lucide-react';
+import { Save } from 'lucide-react';
 import CountryFlag from '@/components/tc/CountryFlag';
 import RefereeMailActions from '@/components/orga/RefereeMailActions';
 import RefereeCompetitionPicker from '@/components/orga/RefereeCompetitionPicker';
@@ -25,11 +25,10 @@ export default function RefereeEditDialog({ referee, competitions, onClose, onSa
       (competitions || []).some((c) => c.id === id)
     ),
   });
-  const [showPassword, setShowPassword] = useState(false);
+  const [resetCredentials, setResetCredentials] = useState(null);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
 
-  const mailPassword = referee.passwordPlain || form.password;
   const set = (patch) => setForm((f) => ({ ...f, ...patch }));
 
   const toggleComp = (id) => {
@@ -42,8 +41,13 @@ export default function RefereeEditDialog({ referee, competitions, onClose, onSa
       setError('A country of origin is required.');
       return;
     }
+    if (form.password && form.password.length !== 6) {
+      setError('New password must be exactly 6 characters. Leave empty to keep the current password.');
+      return;
+    }
     setSaving(true);
     setError('');
+    setResetCredentials(null);
     try {
       const res = await orga.invoke('refereeUpdate', {
         refereeId: referee.id,
@@ -59,8 +63,15 @@ export default function RefereeEditDialog({ referee, competitions, onClose, onSa
         setError(res.data.error);
         return;
       }
-      onSaved();
-      onClose();
+      if (form.password) {
+        // This stays in browser memory only and is shown after a successful reset.
+        setResetCredentials({ displayName: form.displayName, username: form.username, password: form.password });
+        setForm((current) => ({ ...current, password: '' }));
+        await onSaved?.();
+      } else {
+        await onSaved?.();
+        onClose();
+      }
     } catch (err) {
       setError(err.message || 'Could not save');
     } finally {
@@ -93,8 +104,8 @@ export default function RefereeEditDialog({ referee, competitions, onClose, onSa
             </div>
           </div>
           <div className="space-y-1">
-            <Label htmlFor="ref-pass" className="text-xs">New password (leave empty to keep)</Label>
-            <Input id="ref-pass" type="password" value={form.password} onChange={(e) => set({ password: e.target.value })} placeholder="••••••••" />
+            <Label htmlFor="ref-pass" className="text-xs">New password (exactly 6 characters; leave empty to keep)</Label>
+            <Input id="ref-pass" type="password" value={form.password} onChange={(e) => set({ password: e.target.value })} maxLength={6} placeholder="••••••" />
           </div>
           <div className="space-y-1">
             <Label className="text-xs">Function</Label>
@@ -110,31 +121,19 @@ export default function RefereeEditDialog({ referee, competitions, onClose, onSa
         </div>
 
         <div className="flex flex-wrap items-center gap-x-4 gap-y-2 rounded-md bg-muted/50 px-3 py-2">
-          <span className="text-xs text-muted-foreground">Current password</span>
-          {referee.passwordPlain ? (
-            <span className="inline-flex items-center gap-1">
-              <span className="font-mono text-xs">{showPassword ? referee.passwordPlain : '••••••••'}</span>
-              <button
-                type="button"
-                title={showPassword ? 'Hide password' : 'Show password'}
-                onClick={() => setShowPassword((v) => !v)}
-                className="text-muted-foreground hover:text-foreground"
-              >
-                {showPassword ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
-              </button>
-            </span>
-          ) : (
-            <span className="text-xs text-muted-foreground">not stored — set a new one</span>
-          )}
-          <label className="flex items-center gap-2 text-sm">
+          <span className="text-xs text-muted-foreground">Existing passwords cannot be viewed. Enter a new password above to reset.</span>
+          <label className="flex items-center gap-2 text-sm ml-auto">
             <Checkbox checked={form.active} onCheckedChange={(v) => set({ active: !!v })} /> Active
           </label>
-          <RefereeMailActions
-            credentials={{ displayName: form.displayName, username: form.username, password: mailPassword }}
-            disabled={!mailPassword}
-            className="ml-auto"
-          />
         </div>
+        {resetCredentials && (
+          <div className="rounded-md border border-isu-blue/40 bg-isu-blue/5 p-3">
+            <p className="text-sm font-medium">Password reset successfully — shown once</p>
+            <p className="mt-1 text-xs text-muted-foreground">Copy it now or provide it using a secure channel. This password is not saved for later viewing.</p>
+            <p className="mt-2 font-mono text-sm break-all">{resetCredentials.password}</p>
+            <RefereeMailActions credentials={resetCredentials} className="mt-2" />
+          </div>
+        )}
 
         <div className="space-y-2">
           <Label className="text-xs">Competitions</Label>

@@ -1,6 +1,6 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.54';
 import { verifyGateToken } from '../../shared/cubeAuth.ts';
-import { runEntityOp } from '../../shared/cubeData.ts';
+import { runEntityOp, publicRefereeResult } from '../../shared/cubeData.ts';
 
 const ENTITIES = [
   'Competition', 'Round', 'Race', 'Athlete', 'Call',
@@ -33,8 +33,21 @@ export default async function (req) {
       if (user?.role === 'admin') client = base44;
     }
     const repo = client.entities[entity];
-    const result = await runEntityOp(repo, op, Array.isArray(body?.args) ? body.args : []);
-    return Response.json({ result });
+    const args = Array.isArray(body?.args) ? body.args : [];
+    // Referee credentials are only ever updated through refereeCreate/refereeUpdate.
+    // Prevent arbitrary field writes via the generic ORGACube entity gateway.
+    if (entity === 'Referee' && !['list', 'get', 'filter', 'count', 'update', 'delete'].includes(op)) {
+      return Response.json({ error: 'Use Referee management functions' }, { status: 403 });
+    }
+    if (entity === 'Referee' && op === 'update') {
+      const changes = args[1] || {};
+      const allowed = ['assignedCompetitionIds', 'assignedGenderGroups', 'active', 'loginConfirmed'];
+      if (!changes || typeof changes !== 'object' || Object.keys(changes).some((key) => !allowed.includes(key))) {
+        return Response.json({ error: 'Use refereeUpdate for account details' }, { status: 403 });
+      }
+    }
+    const result = await runEntityOp(repo, op, args);
+    return Response.json({ result: entity === 'Referee' ? publicRefereeResult(result) : result });
   } catch (error) {
     return Response.json({ error: error.message }, { status: error.status === 429 ? 429 : 500 });
   }

@@ -8,6 +8,15 @@ const PAGE_SHAPED = new Set(['list', 'filter']);
 // may hold: without paging a report silently stops at the first page of calls.
 const MAX_RECORDS = 5000;
 
+// Referee credential fields must never be included in Cube API responses.
+export function publicRefereeResult(value: any): any {
+  if (Array.isArray(value)) return value.map(publicRefereeResult);
+  if (!value || typeof value !== 'object') return value;
+  const { passwordPlain, passwordHash, salt, ...safe } = value;
+  return safe;
+}
+
+
 export async function runEntityOp(repo: any, op: string, args: any[] = []): Promise<any> {
   let result: any;
   switch (op) {

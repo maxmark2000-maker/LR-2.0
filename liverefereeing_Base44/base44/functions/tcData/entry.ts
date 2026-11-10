@@ -1,6 +1,6 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.40';
 import { verifyGateToken } from '../../shared/cubeAuth.ts';
-import { runEntityOp, readEntityPages } from '../../shared/cubeData.ts';
+import { runEntityOp, readEntityPages, publicRefereeResult } from '../../shared/cubeData.ts';
 import { cachedCubeRead, forgetCubeReads } from '../../shared/cubeReadCache.ts';
 
 const READ_ENTITIES = [
@@ -57,12 +57,12 @@ export default async function (req) {
         ? readEntityPages(repo, args)
         : runEntityOp(repo, op, args));
       const result = await cachedCubeRead(key, read, { force: body?.fresh === true });
-      return Response.json({ result });
+      return Response.json({ result: entity === 'Referee' ? publicRefereeResult(result) : result });
     }
 
     const result = await runEntityOp(repo, op, args);
     if (WRITE_OPS.has(op)) forgetCubeReads();
-    return Response.json({ result });
+    return Response.json({ result: entity === 'Referee' ? publicRefereeResult(result) : result });
   } catch (error) {
     return Response.json({ error: error.message }, { status: 500 });
   }
